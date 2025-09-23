@@ -1,6 +1,6 @@
 import { FileReader } from './file-reader.interface.js';
 import { readFileSync } from 'node:fs';
-import { Offer, CityName, HousingType, Amenity, UserType } from '../../types/index.js';
+import { Offer, isCityName, isHousingType, isAmenity, isUserType } from '../../types/index.js';
 
 export class TSVFileReader implements FileReader {
   constructor(
@@ -30,18 +30,18 @@ export class TSVFileReader implements FileReader {
         title,
         description,
         postDate: new Date(createdDate),
-        city: city as CityName,
+        city: isCityName(city) ?? 'Paris',
         previewImage,
         images: images.split(';'),
         isPremium: isPremium === 'true',
         isFavorite: isFavorite === 'true',
         rating: parseFloat(rating),
-        housingType: housingType as HousingType,
+        housingType: isHousingType(housingType) ?? 'apartment',
         rooms: parseInt(rooms, 10),
         guests: parseInt(guests, 10),
         price: parseInt(price, 10),
-        amenities: amenities.split(';').map((amenity) => amenity as Amenity),
-        author: { name: authorName, email: authorEmail, avatarPath: authorAvatarPath, password: authorPassword, type: authorType as UserType },
+        amenities: amenities.split(';').map((amenity) => isAmenity(amenity) ?? 'Breakfast'),
+        author: { name: authorName, email: authorEmail, avatarPath: authorAvatarPath, password: authorPassword, type: isUserType(authorType) ?? 'обычный' },
         commentCount: Number.parseInt(commentCount, 10),
         coordinates: {
           latitude: Number.parseFloat(coordinates.split(';')[0]),
