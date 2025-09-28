@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { Command } from './command.interface.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { DEFAULT_PACKAGE_JSON_PATH } from '../../congig/constans.js';
+import { PACKAGE_JSON_PATH } from '../../shared/libs/paths.js';
 
 type PackageJSONConfig = {
   version: string;
@@ -19,7 +19,7 @@ function isPackageJSONConfig(val: unknown): val is PackageJSONConfig {
 
 export class VersionCommand implements Command {
   constructor(
-    private readonly filePath: string = DEFAULT_PACKAGE_JSON_PATH
+    private readonly filePath: string = PACKAGE_JSON_PATH
   ) { }
 
   public getName(): string {
