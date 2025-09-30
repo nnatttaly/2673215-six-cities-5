@@ -1,4 +1,5 @@
 import { appendFile } from 'node:fs/promises';
+import chalk from 'chalk';
 import { Command } from './command.interface.js';
 import { MockServerData } from '../../shared/types/index.js';
 import { TSVOfferGenerator } from '../../shared/libs/offer-generator/index.js';
@@ -11,12 +12,12 @@ export class GenerateCommand implements Command {
       const response = await fetch(url);
 
       if (!response.ok) {
-        throw new Error(`Не удалось загрузить данные с ${url}`);
+        throw new Error(chalk.red(`Не удалось загрузить данные с ${url}`));
       }
 
       this.initialData = await response.json();
     } catch {
-      throw new Error(`Не удалось загрузить данные из ${url}`);
+      throw new Error(chalk.red(`Не удалось загрузить данные из ${url}`));
     }
   }
 
@@ -42,9 +43,9 @@ export class GenerateCommand implements Command {
     try {
       await this.load(url);
       await this.write(filepath, offerCount);
-      console.info(`Файл ${filepath} создан!`);
+      console.info(chalk.cyan.bold(`Файл ${filepath} создан!`));
     } catch (error: unknown) {
-      console.error('Не удалось сгенерировать данные');
+      console.error(chalk.red('Не удалось сгенерировать данные'));
 
       if (error instanceof Error) {
         console.error(error.message);
