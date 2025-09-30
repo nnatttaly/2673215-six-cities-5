@@ -34,3 +34,7 @@ export function getRandomItemsCount<T>(items: T[], count: number): T[] {
 export function getRandomBoolean(): boolean {
   return Math.random() < 0.5;
 }
+
+export function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : '';
+}
