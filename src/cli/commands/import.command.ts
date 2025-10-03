@@ -14,7 +14,7 @@ export class ImportCommand implements Command {
   }
 
   private onCompleteImport(count: number) {
-    console.info(`${count} rows imported.`);
+    console.info(`Импортировано ${count} строк.`);
   }
 
   public async execute(...parameters: string[]): Promise<void> {
@@ -27,7 +27,7 @@ export class ImportCommand implements Command {
     try {
       await fileReader.read();
     } catch (error) {
-      console.error(chalk.red(`Не удалось импортировать данные из файла: ${filename}`));
+      console.error(chalk.red(`Не удалось импортировать данные из файла: ${filename}.`));
       console.error(chalk.red(getErrorMessage(error)));
     }
   }

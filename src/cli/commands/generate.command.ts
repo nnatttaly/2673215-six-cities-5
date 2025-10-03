@@ -13,12 +13,12 @@ export class GenerateCommand implements Command {
       const response = await fetch(url);
 
       if (!response.ok) {
-        throw new Error(chalk.red(`Не удалось загрузить данные с ${url}`));
+        throw new Error(chalk.red(`Не удалось загрузить данные с ${url}.`));
       }
 
       this.initialData = await response.json();
     } catch {
-      throw new Error(chalk.red(`Не удалось загрузить данные из ${url}`));
+      throw new Error(chalk.red(`Не удалось загрузить данные из ${url}.`));
     }
   }
 
@@ -44,7 +44,7 @@ export class GenerateCommand implements Command {
       await this.write(filepath, offerCount);
       console.info(chalk.cyan.bold(`Файл ${filepath} создан!`));
     } catch (error: unknown) {
-      console.error(chalk.red('Не удалось сгенерировать данные'));
+      console.error(chalk.red('Не удалось сгенерировать данные.'));
 
       console.error(chalk.red(getErrorMessage(error)));
     }
