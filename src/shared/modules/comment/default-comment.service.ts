@@ -17,6 +17,7 @@ export class DefaultCommentService implements CommentService {
     const comment = await this.commentModel.create(dto);
 
     await this.offerService.recalculateRating(dto.offerId);
+    await this.offerService.incCommentCount(dto.offerId);
 
     return comment.populate('userId');
   }

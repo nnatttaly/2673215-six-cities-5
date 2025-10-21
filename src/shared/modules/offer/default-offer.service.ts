@@ -8,6 +8,7 @@ import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { DEFAULT_RETURN_OFFERS_COUNT, MAX_RETURN_OFFERS_LIMIT, DEFAULT_RETURN_PREMIUM_OFFERS_COUNT, MAX_RETURN_PREMIUM_OFFERS_LIMIT } from '../../constants/constants.js';
 import { CommentEntity } from '../comment/index.js';
+import { Types } from 'mongoose';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -70,7 +71,7 @@ export class DefaultOfferService implements OfferService {
     const result = await this.commentModel
       .aggregate([
         {
-          $match: { offer: offerId }
+          $match: { offerId: new Types.ObjectId(offerId) }
         },
         {
           $group: {

@@ -11,13 +11,13 @@ export interface FavoriteEntity extends defaultClasses.Base {}
 })
 export class FavoriteEntity extends defaultClasses.TimeStamps {
   @prop({
-    ref: () => UserEntity,
+    ref: 'UserEntity',
     required: true,
   })
   public user: Ref<UserEntity>;
 
   @prop({
-    ref: () => OfferEntity,
+    ref: 'OfferEntity',
     required: true,
   })
   public offer: Ref<OfferEntity>;

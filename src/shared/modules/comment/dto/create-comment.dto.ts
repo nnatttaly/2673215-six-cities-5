@@ -3,4 +3,5 @@ export class CreateCommentDto {
   public rating: number;
   public offerId: string;
   public userId: string;
+  public postDate: Date;
 }

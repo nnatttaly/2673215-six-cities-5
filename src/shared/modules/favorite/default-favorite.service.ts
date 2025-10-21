@@ -1,7 +1,7 @@
 import { FavoriteService } from './favorite-service.interface.js';
 import { DocumentType, types } from '@typegoose/typegoose';
 import { FavoriteEntity } from './favorite.entity.js';
-import { CreateOrDeleteFavoriteDto } from './dto/create-or-delete-favorite.dto.js';
+import { FavoriteDto } from './dto/favorite.dto.js';
 import { inject, injectable } from 'inversify';
 import { Component } from '../../types/index.js';
 import { Logger } from '../../libs/logger/index.js';
@@ -13,14 +13,14 @@ export class DefaultFavoriteService implements FavoriteService {
     @inject(Component.FavoriteModel) private readonly favoriteModel: types.ModelType<FavoriteEntity>
   ) {}
 
-  public async create(dto: CreateOrDeleteFavoriteDto): Promise<DocumentType<FavoriteEntity>> {
+  public async create(dto: FavoriteDto): Promise<DocumentType<FavoriteEntity>> {
     const result = await this.favoriteModel.create(dto);
     this.logger.info(`Добавлено в избранное: user=${dto.userId}, offer=${dto.offerId}.`);
 
     return result.populate(['user', 'offer']);
   }
 
-  public async delete(dto: CreateOrDeleteFavoriteDto): Promise<DocumentType<FavoriteEntity> | null> {
+  public async delete(dto: FavoriteDto): Promise<DocumentType<FavoriteEntity> | null> {
     return this.favoriteModel
       .findOneAndDelete(dto)
       .exec();
@@ -33,4 +33,10 @@ export class DefaultFavoriteService implements FavoriteService {
       .exec();
   }
 
+  public async exists(dto: FavoriteDto): Promise<boolean> {
+    return (await this.favoriteModel.exists({
+      user: dto.userId,
+      offer: dto.offerId,
+    })) !== null;
+  }
 }
