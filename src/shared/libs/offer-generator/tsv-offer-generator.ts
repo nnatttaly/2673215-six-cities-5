@@ -5,7 +5,7 @@ import { generateRandomValue, getRandomItem, getRandomItems, getRandomItemsCount
 import { FIRST_WEEK_DAY, LAST_WEEK_DAY, OFFER_IMAGES_COUNT,
   MIN_RATING, MAX_RATING, RATING_DECIMAL_DIGITS, MIN_ROOMS,
   MAX_ROOMS, MIN_GUESTS, MAX_GUESTS, MIN_PRICE, MAX_PRICE,
-  DEFAULT_COMMENT_COUNT } from '../../constants/index.js';
+  ZERO_COMMENTS } from '../../constants/index.js';
 
 export class TSVOfferGenerator implements OfferGenerator {
   constructor(private readonly mockData: MockServerData) { }
@@ -32,7 +32,7 @@ export class TSVOfferGenerator implements OfferGenerator {
     const avatar = getRandomItem<string>(this.mockData.avatars);
     const password = getRandomItem<string>(this.mockData.passwords);
     const type = getRandomItem<string>(getAllUserTypes());
-    const commentCount = DEFAULT_COMMENT_COUNT;
+    const commentCount = ZERO_COMMENTS;
     const coords = getDefaultCityCoordinates(city);
     const coordsString = [coords.latitude, coords.longitude].join(';');
 

@@ -1,7 +1,8 @@
-import { defaultClasses, getModelForClass, prop, modelOptions } from '@typegoose/typegoose';
+import { defaultClasses, getModelForClass, prop, modelOptions, Ref } from '@typegoose/typegoose';
 import { getAllUserTypes, User, UserType } from '../../types/index.js';
 import { createSHA256 } from '../../helpers/index.js';
 import { MIN_NAME_LENGTH, MAX_NAME_LENGTH, DEFAULT_AVATAR_PATH } from '../../constants/index.js';
+import { OfferEntity } from '../offer/index.js';
 
 export interface UserEntity extends defaultClasses.Base {}
 
@@ -45,6 +46,12 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
     enum: getAllUserTypes(),
   })
   public type: UserType;
+
+  @prop({
+    ref: () => OfferEntity,
+    default: []
+  })
+  public favorites: Ref<OfferEntity>[];
 
   constructor(userData: User) {
     super();

@@ -1,7 +1,7 @@
 import { defaultClasses, getModelForClass, modelOptions, prop, Ref } from '@typegoose/typegoose';
 import { CityName, getAllCityNames, HousingType, getAllHousingTypes, Amenity, getAllAmenities, Coordinates } from '../../types/index.js';
 import { UserEntity } from '../user/index.js';
-import { MIN_TITLE_LENGTH, MAX_TITLE_LENGTH, MIN_DESCRIPTION_LENGTH, MAX_DESCRIPTION_LENGTH, MIN_RATING, MAX_RATING, MIN_ROOMS, MAX_ROOMS, MIN_GUESTS, MAX_GUESTS, MIN_PRICE, MAX_PRICE, DEFAULT_COMMENT_COUNT} from '../../constants/index.js';
+import { MIN_TITLE_LENGTH, MAX_TITLE_LENGTH, MIN_DESCRIPTION_LENGTH, MAX_DESCRIPTION_LENGTH, MIN_RATING, MAX_RATING, MIN_ROOMS, MAX_ROOMS, MIN_GUESTS, MAX_GUESTS, MIN_PRICE, MAX_PRICE, ZERO_COMMENTS} from '../../constants/index.js';
 
 
 export interface OfferEntity extends defaultClasses.Base {}
@@ -53,9 +53,6 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true, default: false })
   public isPremium: boolean;
 
-  @prop({ required: true, default: false })
-  public isFavorite: boolean;
-
   @prop({
     required: true,
     min: [MIN_RATING, `Рейтинг не может быть меньше ${MIN_RATING}.`],
@@ -99,12 +96,12 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   public amenities: Amenity[];
 
   @prop({
-    ref: UserEntity,
+    ref: () => UserEntity,
     required: true
   })
   public author: Ref<UserEntity>;
 
-  @prop({ required: true, default: DEFAULT_COMMENT_COUNT, })
+  @prop({ required: true, default: ZERO_COMMENTS, })
   public commentCount: number;
 
   @prop({
