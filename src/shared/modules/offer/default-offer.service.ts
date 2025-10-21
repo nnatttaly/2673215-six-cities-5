@@ -7,12 +7,14 @@ import { OfferEntity } from './offer.entity.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { DEFAULT_RETURN_OFFERS_COUNT, MAX_RETURN_OFFERS_LIMIT, DEFAULT_RETURN_PREMIUM_OFFERS_COUNT, MAX_RETURN_PREMIUM_OFFERS_LIMIT } from '../../constants/constants.js';
+import { CommentEntity } from '../comment/index.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
-    @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>
+    @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>,
+    @inject(Component.CommentModel) private readonly commentModel: types.ModelType<CommentEntity>,
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
@@ -65,7 +67,34 @@ export class DefaultOfferService implements OfferService {
   }
 
   public async recalculateRating(offerId: string): Promise<void> {
-    throw new Error('Method not implemented.');
+    const result = await this.commentModel
+      .aggregate([
+        {
+          $match: { offer: offerId }
+        },
+        {
+          $group: {
+            _id: '$offer',
+            averageRating: { $avg: '$rating' }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            averageRating: { $round: ['$averageRating', 1] }
+          }
+        }
+      ])
+      .exec();
+
+    const newRating = result.length > 0 ? result[0].averageRating : 0;
+
+    await this.offerModel
+      .updateOne(
+        { _id: offerId },
+        { $set: { rating: newRating } }
+      )
+      .exec();
   }
 
   public async findPremiumByCity(city: CityName, limit = DEFAULT_RETURN_PREMIUM_OFFERS_COUNT): Promise<DocumentType<OfferEntity>[]> {
