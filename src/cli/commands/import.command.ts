@@ -7,9 +7,10 @@ import { DatabaseClient, MongoDatabaseClient } from '../../shared/libs/database-
 import { Logger } from '../../shared/libs/logger/index.js';
 import { ConsoleLogger } from '../../shared/libs/logger/console.logger.js';
 import { DefaultUserService, UserModel } from '../../shared/modules/user/index.js';
-import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from '../../shared/constants/constant.command.js';
+import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from '../../shared/constants/constants.command.js';
 import { Offer } from '../../shared/types/index.js';
 import chalk from 'chalk';
+import { CommentModel } from '../../shared/modules/comment/comment.entity.js';
 
 export class ImportCommand implements Command {
   private userService: UserService;
@@ -23,7 +24,7 @@ export class ImportCommand implements Command {
     this.onCompleteImport = this.onCompleteImport.bind(this);
 
     this.logger = new ConsoleLogger();
-    this.offerService = new DefaultOfferService(this.logger, OfferModel);
+    this.offerService = new DefaultOfferService(this.logger, OfferModel, CommentModel);
     this.userService = new DefaultUserService(this.logger, UserModel);
     this.databaseClient = new MongoDatabaseClient(this.logger);
   }
@@ -53,15 +54,12 @@ export class ImportCommand implements Command {
       previewImage: offer.previewImage,
       images: offer.images,
       isPremium: offer.isPremium,
-      isFavorite: offer.isFavorite,
-      rating: offer.rating,
       housingType: offer.housingType,
       rooms: offer.rooms,
       guests: offer.guests,
       price: offer.price,
       amenities: offer.amenities,
       author: user.id,
-      commentCount: offer.commentCount,
       coordinates: offer.coordinates,
     });
 
