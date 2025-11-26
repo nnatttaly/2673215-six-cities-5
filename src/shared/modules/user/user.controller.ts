@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { BaseController, HttpError, HttpMethod } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
@@ -10,8 +10,6 @@ import { StatusCodes } from 'http-status-codes';
 import { fillDTO } from '../../helpers/index.js';
 import { UserRdo } from './rdo/user.rdo.js';
 import { UserService } from './user-service.interface.js';
-import { LogoutRequest } from './logout-request.type.js';
-import { StatusRequest } from './status-request.type.js';
 
 @injectable()
 export class UserController extends BaseController {
@@ -68,7 +66,7 @@ export class UserController extends BaseController {
   }
 
   public async logout(
-    _req: LogoutRequest,
+    _req: Request,
     _res: Response,
   ): Promise<void> {
 
@@ -81,7 +79,7 @@ export class UserController extends BaseController {
   }
 
   public async status(
-    _req: StatusRequest,
+    _req: Request,
     _res: Response,
   ): Promise<void> {
 
