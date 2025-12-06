@@ -9,13 +9,15 @@ import { OfferRdo } from './rdo/offer.rdo.js';
 import { OfferShortRdo } from './rdo/offer-short.rdo.js';
 import { StatusCodes } from 'http-status-codes';
 import { CreateOfferRequest } from './create-offer-request.type.js';
-
+import { ParamOfferId } from './type/param-offerid.type.js';
+import { CommentRdo, CommentService } from '../comment/index.js';
 
 @injectable()
 export class OfferController extends BaseController {
   constructor(
-    @inject(Component.Logger) protected readonly logger: Logger,
+    @inject(Component.Logger) protected logger: Logger,
     @inject(Component.OfferService) private readonly offerService: OfferService,
+    @inject(Component.CommentService) private readonly commentService: CommentService
   ) {
     super(logger);
 
@@ -27,6 +29,7 @@ export class OfferController extends BaseController {
     this.addRoute({ path: '/:offerId', method: HttpMethod.Patch, handler: this.update });
     this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete });
     this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremium });
+    this.addRoute({ path: '/:offerId/comments', method: HttpMethod.Get, handler: this.getComments });
   }
 
   public async index(
@@ -58,12 +61,11 @@ export class OfferController extends BaseController {
   }
 
   public async show(
-    req: Request,
+    { params }: Request<ParamOfferId>,
     res: Response
   ): Promise<void> {
 
-    const { offerId } = req.params;
-
+    const { offerId } = params;
     const offer = await this.offerService.findById(offerId);
 
     if (!offer) {
@@ -85,29 +87,28 @@ export class OfferController extends BaseController {
 
     const { offerId } = req.params;
 
-    const existsOffer = await this.offerService.exists(offerId);
-    if (!existsOffer) {
+    const offer = await this.offerService.updateById(offerId, req.body);
+    if (!offer) {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
         `Объявление с id «${offerId}» не найдено.`,
         'OfferController'
       );
     }
-
-    const offer = await this.offerService.updateById(offerId, req.body);
 
     this.ok(res, fillDTO(OfferRdo, offer));
   }
 
   public async delete(
-    req: Request,
+    { params }: Request<ParamOfferId>,
     res: Response
   ): Promise<void> {
 
-    const { offerId } = req.params;
+    const { offerId } = params;
 
-    const existsOffer = await this.offerService.exists(offerId);
-    if (!existsOffer) {
+    const offer = await this.offerService.deleteById(offerId);
+
+    if (!offer) {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
         `Объявление с id «${offerId}» не найдено.`,
@@ -115,9 +116,9 @@ export class OfferController extends BaseController {
       );
     }
 
-    const offer = await this.offerService.deleteById(offerId);
+    await this.commentService.deleteByOfferId(offerId);
 
-    this.ok(res, fillDTO(OfferRdo, offer));
+    this.noContent(res, offer);
   }
 
   public async getPremium(
@@ -141,5 +142,18 @@ export class OfferController extends BaseController {
     const offer = await this.offerService.findPremiumByCity(validatedCity, limitNumber);
 
     this.ok(res, fillDTO(OfferRdo, offer));
+  }
+
+  public async getComments({ params }: Request<ParamOfferId>, res: Response): Promise<void> {
+    if (!await this.offerService.exists(params.offerId)) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        `Объявление с id «${params.offerId}» не найдено.`,
+        'OfferController'
+      );
+    }
+
+    const comments = await this.commentService.findByOfferId(params.offerId);
+    this.ok(res, fillDTO(CommentRdo, comments));
   }
 }
