@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { UserType } from '../../../types';
 
 export class UserRdo {
   @Expose()
@@ -10,4 +11,6 @@ export class UserRdo {
   @Expose()
   public avatarPath: string;
 
+  @Expose()
+  public type: UserType;
 }
