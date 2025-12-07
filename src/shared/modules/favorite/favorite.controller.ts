@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
-import { BaseController, DocumentExistsMiddleware, HttpError, HttpMethod, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
+import { BaseController, DocumentExistsMiddleware, PrivateRouteMiddleware, HttpError, HttpMethod, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
 import { FavoriteService } from './favorite-service.interface.js';
@@ -19,12 +19,18 @@ export class FavoriteController extends BaseController {
     super(logger);
     this.logger.info('Регистрация маршрутов для FavoriteController…');
 
-    this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Get,
+      handler: this.index,
+      middlewares: [new PrivateRouteMiddleware()]
+    });
     this.addRoute({
       path: '/:offerId',
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
       ]
@@ -34,6 +40,7 @@ export class FavoriteController extends BaseController {
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
       ]
@@ -41,22 +48,22 @@ export class FavoriteController extends BaseController {
   }
 
   public async index(
-    { body }: Request,
+    { tokenPayload }: Request,
     res: Response
   ): Promise<void> {
 
-    const { userId } = body;
+    const userId = tokenPayload.id;
     const favorites = await this.favoriteService.findByUser(userId);
     const responseData = fillDTO(OfferShortRdo, favorites);
     this.ok(res, responseData);
   }
 
   public async create(
-    { body, params }: Request,
+    { params, tokenPayload }: Request,
     res: Response,
   ): Promise<void> {
 
-    const { userId } = body;
+    const userId = tokenPayload.id;
     const { offerId } = params;
 
     const exists = await this.favoriteService.exists(userId, offerId);
@@ -73,11 +80,11 @@ export class FavoriteController extends BaseController {
   }
 
   public async delete(
-    { body, params }: Request,
+    { params, tokenPayload }: Request,
     res: Response,
   ): Promise<void> {
 
-    const { userId } = body;
+    const userId = tokenPayload.id;
     const { offerId } = params;
 
     const exists = await this.favoriteService.exists(userId, offerId);

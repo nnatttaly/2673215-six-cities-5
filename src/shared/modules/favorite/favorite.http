@@ -2,29 +2,20 @@
 ## Получить список избранных объявлений
 GET http://localhost:5001/favorites HTTP/1.1
 Content-Type: application/json
-
-{
-  "userId": "68ee445e3e27bc0a0640b1c1"
-}
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Imtla3MxMDAwQGh0bWxhY2FkZW15LnJ1IiwibmFtZSI6Iktla3MxIiwiaWQiOiI2OTM1NjE2NmNhNWJmNWE1OTUyMDgzMmUiLCJpYXQiOjE3NjUxMTI2NDMsImV4cCI6MTc2NTI4NTQ0M30.wizEJXlu3ODKedr1-7vvnctk5x6X2Rhpt_WEFJ78UMs
 
 ###
 
 ## Добавить объявление в избранное
 POST http://localhost:5001/favorites/68ee445e3e27bc0a0640b1be HTTP/1.1
 Content-Type: application/json
-
-{
-  "userId": "68ee445e3e27bc0a0640b1c1"
-}
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Imtla3MxMDAwQGh0bWxhY2FkZW15LnJ1IiwibmFtZSI6Iktla3MxIiwiaWQiOiI2OTM1NjE2NmNhNWJmNWE1OTUyMDgzMmUiLCJpYXQiOjE3NjUxMTI2NDMsImV4cCI6MTc2NTI4NTQ0M30.wizEJXlu3ODKedr1-7vvnctk5x6X2Rhpt_WEFJ78UMs
 
 ###
 
 ## Удалить объявление из избранного
 DELETE http://localhost:5001/favorites/68ee445e3e27bc0a0640b1be HTTP/1.1
 Content-Type: application/json
-
-{
-  "userId": "68ee445e3e27bc0a0640b1c1"
-}
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Imtla3MxMDAwQGh0bWxhY2FkZW15LnJ1IiwibmFtZSI6Iktla3MxIiwiaWQiOiI2OTM1NjE2NmNhNWJmNWE1OTUyMDgzMmUiLCJpYXQiOjE3NjUxMTI2NDMsImV4cCI6MTc2NTI4NTQ0M30.wizEJXlu3ODKedr1-7vvnctk5x6X2Rhpt_WEFJ78UMs
 
 ###

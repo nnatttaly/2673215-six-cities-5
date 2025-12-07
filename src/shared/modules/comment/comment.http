@@ -3,13 +3,13 @@
 
 POST http://localhost:5001/comments/68ee445e3e27bc0a0640b1be HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Imtla3MxMDAwQGh0bWxhY2FkZW15LnJ1IiwibmFtZSI6Iktla3MxIiwiaWQiOiI2OTM1NjE2NmNhNWJmNWE1OTUyMDgzMmUiLCJpYXQiOjE3NjUxMDY4MTIsImV4cCI6MTc2NTI3OTYxMn0.5aaXVHAWcqXCZPeKi3GNizD0ZFg2VNLKVjQNHHM1oX0
 
 {
   "text": "Как обстоят дела с мяу мяу мяу мяяяяу",
   "rating": 4.3,
   "postDate": "1999-09-19T00:00:00.000Z",
-  "offerId": "68ee445e3e27bc0a0640b1be",
-  "userId": "68ee4321dcd454f8dbf39c7e"
+  "offerId": "68ee445e3e27bc0a0640b1be"
 }
 
 ###
