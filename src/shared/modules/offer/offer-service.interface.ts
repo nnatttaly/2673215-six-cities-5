@@ -7,12 +7,12 @@ import { DocumentExists } from '../../types/index.js';
 
 export interface OfferService extends DocumentExists {
   create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>>;
-  findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
-  find(limit?: number): Promise<DocumentType<OfferEntity>[]>;
+  findById(offerId: string, userId?: string): Promise<DocumentType<OfferEntity> | null>;
+  find(userId?: string, limit?: number): Promise<DocumentType<OfferEntity>[]>;
   deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   updateById(offerId: string, dto: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null>;
   incCommentCount(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   exists(documentId: string): Promise<boolean>;
   recalculateRating(offerId: string): Promise<void>;
-  findPremiumByCity(city: CityName, limit?: number): Promise<DocumentType<OfferEntity>[]>;
+  findPremiumByCity(city: CityName, userId?: string, limit?: number): Promise<DocumentType<OfferEntity>[]>;
 }

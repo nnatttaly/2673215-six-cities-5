@@ -47,6 +47,24 @@ paths:
           description: Пользователь с таким email уже существует.
 
   /users/login:
+    get:
+      tags:
+        - users
+      summary: Проверка состояния пользователя.
+      description: Возвращает информацию по авторизованному пользователю.
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          description: Пользователь авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        "401":
+          description: Пользователь не авторизован.
+          
     post:
       tags:
         - users
@@ -71,40 +89,6 @@ paths:
                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
         "401":
           description: Неверный email или пароль.
-
-  /users/logout:
-    post:
-      tags:
-        - users
-      summary: Выход из системы.
-      description: Завершает сеанс пользователя.
-      security:
-        - bearerAuth: []
-
-      responses:
-        "200":
-          description: Успешный выход.
-        "401":
-          description: Пользователь не авторизован.
-
-  /users/status:
-    get:
-      tags:
-        - users
-      summary: Проверка состояния пользователя.
-      description: Возвращает информацию по авторизованному пользователю.
-      security:
-        - bearerAuth: []
-
-      responses:
-        "200":
-          description: Пользователь авторизован.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/user'
-        "401":
-          description: Пользователь не авторизован.
 
   /offers:
     get:

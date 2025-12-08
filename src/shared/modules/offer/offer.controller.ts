@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
-import { BaseController, DocumentExistsMiddleware, HttpError, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
+import { BaseController, DocumentExistsMiddleware, PrivateRouteMiddleware, HttpError, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component, isCityName } from '../../types/index.js';
 import { OfferService } from './offer-service.interface.js';
@@ -19,7 +19,7 @@ export class OfferController extends BaseController {
   constructor(
     @inject(Component.Logger) protected logger: Logger,
     @inject(Component.OfferService) private readonly offerService: OfferService,
-    @inject(Component.CommentService) private readonly commentService: CommentService
+    @inject(Component.CommentService) private readonly commentService: CommentService,
   ) {
     super(logger);
 
@@ -31,8 +31,8 @@ export class OfferController extends BaseController {
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateDtoMiddleware(CreateOfferDto),
-        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
       ]
     });
     this.addRoute({
@@ -49,6 +49,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(UpdateOfferDto),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
@@ -58,7 +59,10 @@ export class OfferController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Delete,
       handler: this.delete,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')]
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId')
+      ]
     });
     this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremium });
     this.addRoute({
@@ -73,34 +77,34 @@ export class OfferController extends BaseController {
   }
 
   public async index(
-    { query: { limit } }: Request<unknown, unknown, unknown, { limit?: number }>,
+    { query: { limit }, tokenPayload }: Request<unknown, unknown, unknown, { limit?: number }>,
     res: Response
   ): Promise<void> {
 
-    const offers = await this.offerService.find(limit);
+    const userId = tokenPayload?.id;
+    const offers = await this.offerService.find(userId, limit);
 
-    // ToDo: сейчас в OfferShortRdo отсутствует поле isFavorite
     this.ok(res, fillDTO(OfferShortRdo, offers));
   }
 
   public async create(
-    { body }: CreateOfferRequest,
+    { body, tokenPayload }: CreateOfferRequest,
     res: Response
   ): Promise<void> {
 
-    const result = await this.offerService.create(body);
+    const result = await this.offerService.create({ ...body, author: tokenPayload.id });
     this.created(res, fillDTO(OfferRdo, result));
   }
 
   public async show(
-    { params }: Request<ParamOfferId>,
+    { params, tokenPayload }: Request<ParamOfferId>,
     res: Response
   ): Promise<void> {
 
+    const userId = tokenPayload?.id;
     const { offerId } = params;
-    const offer = await this.offerService.findById(offerId);
+    const offer = await this.offerService.findById(offerId, userId);
 
-    // ToDo: сейчас в OfferRdo отсутствует поле isFavorite
     this.ok(res, fillDTO(OfferRdo, offer));
   }
 
@@ -135,6 +139,7 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
 
+    const userId = req.tokenPayload?.id;
     const { city } = req.params;
     const validatedCity = isCityName(city);
     if (!validatedCity) {
@@ -148,7 +153,7 @@ export class OfferController extends BaseController {
     const { limit } = req.query;
     const limitNumber = limit ? +limit : undefined;
 
-    const offer = await this.offerService.findPremiumByCity(validatedCity, limitNumber);
+    const offer = await this.offerService.findPremiumByCity(validatedCity, userId, limitNumber);
 
     this.ok(res, fillDTO(OfferRdo, offer));
   }

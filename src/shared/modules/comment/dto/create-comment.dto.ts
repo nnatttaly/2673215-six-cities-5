@@ -1,5 +1,4 @@
 import {
-  IsMongoId,
   IsString,
   Length,
   IsNumber,
@@ -29,7 +28,6 @@ export class CreateCommentDto {
   @Max(MAX_RATING, { message: CreateCommentMessages.rating.maxValue })
   public rating: number;
 
-  @IsMongoId({ message: CreateCommentMessages.userId.invalidFormat })
   public userId: string;
 
   @IsDateString({}, { message: CreateCommentMessages.postDate.invalidFormat })

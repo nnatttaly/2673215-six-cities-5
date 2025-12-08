@@ -1,5 +1,5 @@
 import { CityName, HousingType, Amenity, Coordinates, getAllCityNames, getAllHousingTypes, getAllAmenities } from '../../../types/index.js';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsMongoId, IsNumber, IsString, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsNumber, IsString, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { CreateOfferValidationMessage } from './create-or-update-offer.messages.js';
 import { MAX_DESCRIPTION_LENGTH, MAX_GUESTS, MAX_PRICE, MAX_ROOMS, MAX_TITLE_LENGTH, MIN_DESCRIPTION_LENGTH, MIN_GUESTS, MIN_PRICE, MIN_ROOMS, MIN_TITLE_LENGTH, OFFER_IMAGES_COUNT, } from '../../../constants/index.js';
 import { Type } from 'class-transformer';
@@ -61,7 +61,6 @@ export class CreateOfferDto {
   @IsEnum(getAllAmenities(), { each: true, message: CreateOfferValidationMessage.amenities.invalidFormat })
   public amenities: Amenity[];
 
-  @IsMongoId({ message: CreateOfferValidationMessage.author.invalidId })
   public author: string;
 
   @ValidateNested()
