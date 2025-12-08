@@ -9,6 +9,7 @@ import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { DEFAULT_RETURN_OFFERS_COUNT, MAX_RETURN_OFFERS_LIMIT, DEFAULT_RETURN_PREMIUM_OFFERS_COUNT, MAX_RETURN_PREMIUM_OFFERS_LIMIT } from '../../constants/constants.js';
 import { CommentEntity } from '../comment/index.js';
 import { Types } from 'mongoose';
+import { FavoriteEntity } from '../favorite/index.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -16,6 +17,7 @@ export class DefaultOfferService implements OfferService {
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>,
     @inject(Component.CommentModel) private readonly commentModel: types.ModelType<CommentEntity>,
+    @inject(Component.FavoriteModel) private readonly favoriteModel: types.ModelType<FavoriteEntity>,
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
@@ -25,24 +27,43 @@ export class DefaultOfferService implements OfferService {
     return result.populate('author');
   }
 
-  public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
+  public async findById(offerId: string, userId?: string): Promise<DocumentType<OfferEntity> | null> {
+    const offer = await this.offerModel
       .findById(offerId)
       .populate('author')
       .exec();
+
+    if (!offer) {
+      return null;
+    }
+
+    if (userId) {
+      const favorite = await this.favoriteModel.findOne({
+        userId: userId,
+        offerId: offerId
+      }).exec();
+
+      offer.isFavorite = !!favorite;
+    } else {
+      offer.isFavorite = false;
+    }
+
+    return offer;
   }
 
-  public async find(limit?: number): Promise<DocumentType<OfferEntity>[]> {
+  public async find(userId?: string, limit?: number): Promise<DocumentType<OfferEntity>[]> {
     const actualLimit = limit
       ? Math.min(limit, MAX_RETURN_OFFERS_LIMIT)
       : DEFAULT_RETURN_OFFERS_COUNT;
 
-    return this.offerModel
+    const offers = await this.offerModel
       .find()
       .sort({ postDate: SortType.Down })
       .limit(actualLimit)
       .populate('author')
       .exec();
+
+    return this.addIsFavoriteFlag(offers, userId);
   }
 
   public async deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
@@ -101,15 +122,45 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public async findPremiumByCity(city: CityName, limit?: number): Promise<DocumentType<OfferEntity>[]> {
+  public async findPremiumByCity(city: CityName, userId?: string, limit?: number): Promise<DocumentType<OfferEntity>[]> {
     const actualLimit = limit
       ? Math.min(limit, MAX_RETURN_PREMIUM_OFFERS_LIMIT)
       : DEFAULT_RETURN_PREMIUM_OFFERS_COUNT;
-    return this.offerModel
+
+    const offers = await this.offerModel
       .find({ city, isPremium: true })
       .sort({ postDate: SortType.Down })
       .limit(actualLimit)
       .populate('author')
       .exec();
+
+    return this.addIsFavoriteFlag(offers, userId);
+  }
+
+  private async addIsFavoriteFlag(
+    offers: DocumentType<OfferEntity>[],
+    userId?: string
+  ): Promise<DocumentType<OfferEntity>[]> {
+    if (!userId) {
+      for (const offer of offers) {
+        offer.isFavorite = false;
+      }
+      return offers;
+    }
+
+    const favorites = await this.favoriteModel
+      .find({ userId: userId })
+      .select('offerId')
+      .exec();
+
+    const favoriteOfferIds = new Set(
+      favorites.map((fav) => fav.offerId.toString())
+    );
+
+    for (const offer of offers) {
+      offer.isFavorite = favoriteOfferIds.has(offer.id.toString());
+    }
+
+    return offers;
   }
 }

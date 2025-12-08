@@ -53,6 +53,8 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true, default: false })
   public isPremium: boolean;
 
+  public isFavorite: boolean;
+
   @prop({
     required: true,
     min: [MIN_RATING, `Рейтинг не может быть меньше ${MIN_RATING}.`],

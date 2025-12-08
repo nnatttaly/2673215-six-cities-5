@@ -77,13 +77,13 @@ export class OfferController extends BaseController {
   }
 
   public async index(
-    { query: { limit } }: Request<unknown, unknown, unknown, { limit?: number }>,
+    { query: { limit }, tokenPayload }: Request<unknown, unknown, unknown, { limit?: number }>,
     res: Response
   ): Promise<void> {
 
-    const offers = await this.offerService.find(limit);
+    const userId = tokenPayload?.id;
+    const offers = await this.offerService.find(userId, limit);
 
-    // ToDo: сейчас в OfferShortRdo отсутствует поле isFavorite
     this.ok(res, fillDTO(OfferShortRdo, offers));
   }
 
@@ -97,14 +97,14 @@ export class OfferController extends BaseController {
   }
 
   public async show(
-    { params }: Request<ParamOfferId>,
+    { params, tokenPayload }: Request<ParamOfferId>,
     res: Response
   ): Promise<void> {
 
+    const userId = tokenPayload?.id;
     const { offerId } = params;
-    const offer = await this.offerService.findById(offerId);
+    const offer = await this.offerService.findById(offerId, userId);
 
-    // ToDo: сейчас в OfferRdo отсутствует поле isFavorite
     this.ok(res, fillDTO(OfferRdo, offer));
   }
 
@@ -139,6 +139,7 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
 
+    const userId = req.tokenPayload?.id;
     const { city } = req.params;
     const validatedCity = isCityName(city);
     if (!validatedCity) {
@@ -152,7 +153,7 @@ export class OfferController extends BaseController {
     const { limit } = req.query;
     const limitNumber = limit ? +limit : undefined;
 
-    const offer = await this.offerService.findPremiumByCity(validatedCity, limitNumber);
+    const offer = await this.offerService.findPremiumByCity(validatedCity, userId, limitNumber);
 
     this.ok(res, fillDTO(OfferRdo, offer));
   }

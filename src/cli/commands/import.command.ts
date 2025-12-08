@@ -11,6 +11,7 @@ import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from '../../shared/constants/c
 import { Offer } from '../../shared/types/index.js';
 import chalk from 'chalk';
 import { CommentModel } from '../../shared/modules/comment/comment.entity.js';
+import { FavoriteModel } from '../../shared/modules/favorite/favorite.entity.js';
 
 export class ImportCommand implements Command {
   private userService: UserService;
@@ -24,7 +25,7 @@ export class ImportCommand implements Command {
     this.onCompleteImport = this.onCompleteImport.bind(this);
 
     this.logger = new ConsoleLogger();
-    this.offerService = new DefaultOfferService(this.logger, OfferModel, CommentModel);
+    this.offerService = new DefaultOfferService(this.logger, OfferModel, CommentModel, FavoriteModel);
     this.userService = new DefaultUserService(this.logger, UserModel);
     this.databaseClient = new MongoDatabaseClient(this.logger);
   }
